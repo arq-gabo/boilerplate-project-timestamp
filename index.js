@@ -24,15 +24,29 @@ app.get("/api/hello", function (req, res) {
   res.json({ greeting: "hello API" });
 });
 
+// Api endpoint for get current time
+app.get("/api", (req, res, next) => {
+  let currentTime = new Date();
+  res.json({ unix: currentTime.getTime(), utc: currentTime.toUTCString() });
+  next();
+});
+
 // Api endpoint for get time format
 app.get("/api/:time", (req, res, next) => {
-  let dataTime;
-  if (req.params.time.split("").includes("-")) {
-    dataTime = new Date(req.params.time);
+  let paramsTime = req.params.time;
+  let timeData;
+
+  if (/^\d{13}$|^\d{4}-\d{2}-\d{2}$/g.test(paramsTime)) {
+    if (/^\d{13}$/.test(paramsTime)) {
+      timeData = new Date(Number(paramsTime));
+    } else {
+      timeData = new Date(paramsTime);
+    }
+    res.json({ unix: timeData.getTime(), utc: timeData.toUTCString() });
   } else {
-    dataTime = new Date(Number(req.params.time));
+    res.json({ error: "Invalid Date" });
   }
-  res.json({ unix: dataTime.getTime(), utc: dataTime.toUTCString() });
+
   next();
 });
 
