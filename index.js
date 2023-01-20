@@ -26,25 +26,29 @@ app.get("/api/hello", function (req, res) {
 
 // Api endpoint for get current time
 app.get("/api", (req, res, next) => {
-  let currentTime = new Date();
-  res.json({ unix: currentTime.getTime(), utc: currentTime.toUTCString() });
+  let currentDate = new Date();
+  res.json({ unix: currentDate.getTime(), utc: currentDate.toUTCString() });
   next();
 });
 
 // Api endpoint for get time format
-app.get("/api/:time", (req, res, next) => {
-  let paramsTime = req.params.time;
-  let timeData;
+app.get("/api/:date", (req, res, next) => {
+  let paramsDate = req.params.date;
 
-  if (/^\d{13}$|^\d{4}-\d{2}-\d{2}$/g.test(paramsTime)) {
-    if (/^\d{13}$/.test(paramsTime)) {
-      timeData = new Date(Number(paramsTime));
+  if (isNaN(paramsDate)) {
+    if (new Date(paramsDate).toString() !== "Invalid Date") {
+      res.json({
+        unix: new Date(paramsDate).getTime(),
+        utc: new Date(paramsDate).toUTCString(),
+      });
     } else {
-      timeData = new Date(paramsTime);
+      res.json({ error: "Invalid Date" });
     }
-    res.json({ unix: timeData.getTime(), utc: timeData.toUTCString() });
   } else {
-    res.json({ error: "Invalid Date" });
+    res.json({
+      unix: new Date(Number(paramsDate)).getTime(),
+      utc: new Date(Number(paramsDate)).toUTCString(),
+    });
   }
 
   next();
